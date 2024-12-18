@@ -150,6 +150,23 @@ const handleAdd = async (e) => {
         }
     };
 
+
+    const handleNextRender =()=>{
+        //render next 5 rows displaying
+
+    }
+
+
+    const handleSmartBg = (index) => {
+        if (index % 2 === 0) {
+            return { backgroundColor: "#f1f1" }
+        }
+        else{
+          return {
+            backgroundColor: "#F2F2F2"
+          }}
+    };
+
     return (
         <div className='account-bg'>
             <AccountsHeader />
@@ -177,7 +194,7 @@ const handleAdd = async (e) => {
     <tbody>
     {purchaseAccounts?.length > 0 ? (
         purchaseAccounts.map((purchaseAccount, index) => (
-            <tr key={index}>
+        <tr key={index} style={handleSmartBg(index)}>
                 <td>{index + 1}</td>
                 <td>{purchaseAccount.accountName}</td>
                 <td>{purchaseAccount.accountDescription}</td>
@@ -217,6 +234,16 @@ const handleAdd = async (e) => {
             <td colSpan="14">No purchase accounts found.</td>
         </tr>
     )}
+    <tr>
+        <td colSpan="10">
+            <button type='submit' onClick={handleNextRender}>
+                Next
+            </button>
+            <button type='submit'>
+              Prev
+            </button>
+        </td>
+    </tr>
 </tbody>
 
 </table>
