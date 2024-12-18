@@ -1,0 +1,11 @@
+.account-table-input{
+    width: 20%;
+}
+.account-table-rows{
+    border: 1px solid black;
+}
+.account-table-rows-rightborder{
+    border-right: 1px solid black;
+    font-size: 12px;
+ 
+}

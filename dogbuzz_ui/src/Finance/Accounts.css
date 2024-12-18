@@ -1,0 +1,38 @@
+.account-header-section {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-left: 3em;
+    margin-top: 5px;
+  }
+  
+  .account_setup {
+    /* Default text color */
+    
+    text-decoration: none; /* Remove underline */
+    background-color: #DEE7EC;
+  }
+  
+  .account_setup.active {
+    background-color: #006E7A; /* Background for active link */
+  }
+  .account-header-title{
+    color: black;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .rectangle{
+    background-color: #006E7A;
+    height: 8px;
+  }
+  .account-bg{
+    background-color: #f2f2f2;
+    height: 100vh;
+    
+}
+.acc-containers{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

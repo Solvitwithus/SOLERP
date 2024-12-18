@@ -1,0 +1,71 @@
+
+.breeding-container {
+    background-color: #F2F2F2;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+
+.links {
+    text-decoration: none;
+    color: #444444;
+    font-size: 0.9rem;
+     margin-left: 2em;
+    display: inline;
+    line-height: 1; 
+}
+
+
+
+.links:visited {
+    color: #222222; 
+}
+
+
+.setups_breed {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 3em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.setup_left_section, .setup_right_section {
+    width: 40%;
+    background-color: #D9D9D9;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-radius: 10px;
+}
+
+/* .Report_module{ */
+    /* width: 80%;
+    background-color: #D9D9D9;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-radius: 10px;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px; */
+/* } */
+
+    .Report_module {
+        width: 84%;
+        background-color: #D9D9D9;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        border-radius: 10px;
+        
+        margin: 10px auto; /* This centers the div horizontally */
+    }

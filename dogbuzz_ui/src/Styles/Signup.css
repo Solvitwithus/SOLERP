@@ -1,0 +1,130 @@
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #F2F2F2;
+  }
+  
+  .signup-card {
+    border: 1px solid #f7d000;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .signup-title {
+    color: #333333;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .signup-subtitle {
+    color: #006e7a;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .input-group label {
+    font-size: 14px;
+    color: #333333;
+    margin-bottom: 5px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #006e7a;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333333;
+    outline: none;
+  }
+  
+  .input-group input:focus {
+    border-color: #249b00;
+    box-shadow: 0 0 4px rgba(36, 155, 0, 0.5);
+  }
+  
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  
+  .checkbox-group span {
+    color: #006e7a;
+    cursor: pointer;
+  }
+  
+  .error-message {
+    color: #d9534f;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  .signup-button {
+    background-color: #249b00;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .signup-button:hover {
+    background-color: #1d7f00;
+  }
+  
+  .signup-footer {
+    font-size: 14px;
+    color: #333333;
+    margin-top: 15px;
+  }
+  
+  .signup-footer a {
+    color: #006e7a;
+  }
+  
+  .popup {
+    position: fixed;
+    top: 80%;
+    left: 20%;
+    transform: translateX(-50%);
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  
+  .popup.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .popup p {
+    margin: 0;
+  }
+  

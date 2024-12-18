@@ -1,0 +1,30 @@
+/* Container styling */
+.procurement-container {
+    background-color: #F2F2F2;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Section */
+.header-section {
+    background-color: #006E7A;
+    padding: 2px 20px; /* Adds a nice internal padding */
+
+    margin: 0; /* Ensures no external margin */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Header Title */
+.header-title {
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0; /* Ensures no space around the text */
+    text-align: left;
+    line-height: 1.5; /* Adjusted line-height for better readability */
+    letter-spacing: 0.5px; /* Slight spacing for elegance */
+}
