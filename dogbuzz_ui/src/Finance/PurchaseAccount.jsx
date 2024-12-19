@@ -3,6 +3,7 @@ import AccountsHeader from './AccountsHeader';
 import Delete from "../Assets/DeleteIcon.svg"
 import Edit from "../Assets/EditIcon.svg"
 
+import "./Purchaseaccounts.css"
 const PurchaseAccount = () => {
     const [data, setData] = useState({
         accountName: "",
@@ -20,6 +21,8 @@ const PurchaseAccount = () => {
         reimbursementEligibility: false,
     });
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 10;
 const [purchaseAccounts, setPurchaseAccounts] = useState([]);
 const fetchPurchaseAccounts = async () => {
     try {
@@ -33,10 +36,10 @@ const fetchPurchaseAccounts = async () => {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data);
+      
         
         setPurchaseAccounts(data); // Fallback to an empty array if no data
-        console.log("Acc:",setPurchaseAccounts);
+    
         
     } catch (error) {
         console.error("Failed to fetch purchase accounts:", error);
@@ -57,30 +60,6 @@ const fetchPurchaseAccounts = async () => {
 
 
 
-// const handleAdd = async (e) => {
-//     e.preventDefault();
-//     try {
-//         const response = await fetch("http://localhost:5000/AddPurchaseAccount", {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify(data),
-//         });
-
-//         if (!response.ok) {
-//             if (response.status === 409) {
-//                 alert("An account with this name already exists. Please use a different name.");
-//             } else {
-//                 throw new Error(`HTTP error! status: ${response.status}`);
-//             }
-//         } else {
-//             alert("Purchase Account added successfully!");
-//             fetchPurchaseAccounts(); // Refresh the accounts list
-//         }
-//     } catch (error) {
-//         console.error("Error adding purchase account:", error);
-//         alert("Could not add purchase account. Please check your server.");
-//     }
-// };
 
 
 
@@ -138,7 +117,7 @@ const handleAdd = async (e) => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        console.log('Purchase Account deleted successfully');
+      
         fetchPurchaseAccounts(); // Re-fetch data after deletion
     }
 
@@ -151,10 +130,22 @@ const handleAdd = async (e) => {
     };
 
 
-    const handleNextRender =()=>{
-        //render next 5 rows displaying
-
-    }
+      // Pagination Logic
+      const indexOfLastRow = currentPage * rowsPerPage;
+      const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+      const currentRows = purchaseAccounts.slice(indexOfFirstRow, indexOfLastRow);
+  
+      const handleNext = () => {
+          if (currentPage * rowsPerPage < purchaseAccounts.length) {
+              setCurrentPage(currentPage + 1);
+          }
+      };
+  
+      const handlePrev = () => {
+          if (currentPage > 1) {
+              setCurrentPage(currentPage - 1);
+          }
+      };
 
 
     const handleSmartBg = (index) => {
@@ -169,11 +160,12 @@ const handleAdd = async (e) => {
 
     return (
         <div className='account-bg'>
+    
             <AccountsHeader />
             <div className='acc-containers'>
             <table>
     <thead>
-        <tr>
+        <tr className='purchaseacc_tableheads_report'>
             <th>No:</th>
             <th>Account Name</th>
             <th>Account Description</th>
@@ -191,60 +183,67 @@ const handleAdd = async (e) => {
             <th>Action</th>
         </tr>
     </thead>
+
+
     <tbody>
-    {purchaseAccounts?.length > 0 ? (
-        purchaseAccounts.map((purchaseAccount, index) => (
-        <tr key={index} style={handleSmartBg(index)}>
-                <td>{index + 1}</td>
-                <td>{purchaseAccount.accountName}</td>
-                <td>{purchaseAccount.accountDescription}</td>
-                <td>{purchaseAccount.bankName}</td>
-                <td>{purchaseAccount.accountNumber}</td>
-                <td>{purchaseAccount.bankAddress}</td>
-                <td>{purchaseAccount.currency}</td>
-                <td>{purchaseAccount.paymentTerms}</td>
-                <td>{purchaseAccount.preferredVendors}</td>
-                <td>{purchaseAccount.procurementLimits}</td>
-                <td>{purchaseAccount.associatedBusinessUnit}</td>
-                <td>{purchaseAccount.accountManager}</td>
-                <td>{purchaseAccount.status}</td>
-                <td>{purchaseAccount.reimbursementEligibility ? "Yes" : "No"}</td>
-                <td>
-                                  <div className="icons_section">
-                                    <img
-                                      src={Delete}
-                                      alt="Delete"
-                                      onClick={() => handleDeleteClick(purchaseAccount.id)}
-                                      className="action_icons"
-                                      title="Delete Breed"
-                                    />
-                                    <img
-                                      src={Edit}
-                                      alt="Edit"
-                                    onClick={() => handleEditClick(purchaseAccount.id)}
-                                      className="action_icons"
-                                      title="Edit Breed"
-                                    />
-                                  </div>
-                                </td>
-            </tr>
-        ))
-    ) : (
-        <tr>
-            <td colSpan="14">No purchase accounts found.</td>
-        </tr>
-    )}
-    <tr>
-        <td colSpan="10">
-            <button type='submit' onClick={handleNextRender}>
-                Next
-            </button>
-            <button type='submit'>
-              Prev
-            </button>
-        </td>
-    </tr>
-</tbody>
+                        {currentRows.length > 0 ? (
+                            currentRows.map((purchaseAccount, index) => (
+                                <tr key={index} style={handleSmartBg(index)} className='purchaseacc_row'>
+                                    <td>{index + 1}</td>
+                                    <td>{purchaseAccount.accountName}</td>
+                                    <td>{purchaseAccount.accountDescription}</td>
+                                    <td>{purchaseAccount.bankName}</td>
+                                    <td>{purchaseAccount.accountNumber}</td>
+                                    <td>{purchaseAccount.bankAddress}</td>
+                                    <td>{purchaseAccount.currency}</td>
+                                    <td>{purchaseAccount.paymentTerms}</td>
+                                    <td>{purchaseAccount.preferredVendors}</td>
+                                    <td>{purchaseAccount.procurementLimits}</td>
+                                    <td>{purchaseAccount.associatedBusinessUnit}</td>
+                                    <td>{purchaseAccount.accountManager}</td>
+                                    <td>{purchaseAccount.status}</td>
+                                    <td>{purchaseAccount.reimbursementEligibility ? "Yes" : "No"}</td>
+                                    <td>
+                                        <div className="icons_section">
+                                            <img
+                                                src={Delete}
+                                                alt="Delete"
+                                                onClick={() => handleDeleteClick(purchaseAccount.id)}
+                                                className="action_icons"
+                                                title="Delete Account"
+                                            />
+                                            <img
+                                                src={Edit}
+                                                alt="Edit"
+                                                onClick={() => handleEditClick(purchaseAccount.id)}
+                                                className="action_icons"
+                                                title="Edit Account"
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="14">No purchase accounts found.</td>
+                            </tr>
+                        )}
+                        <tr>
+                            <td colSpan="20">
+                                <button type='button' onClick={handlePrev} className='pagenavbutton'>
+                                    Prev
+                                </button>
+                                <button type='button' onClick={handleNext} className='pagenavbutton'>
+                                    Next
+                                </button>
+                                <span className='page_displayer'>
+                                    Page <span className='currentpage'>{currentPage}</span> of <span className='max_pages'>{Math.ceil(purchaseAccounts.length / rowsPerPage)}</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+
+
 
 </table>
 
@@ -424,8 +423,8 @@ const handleAdd = async (e) => {
                             </tr>
                         </tbody>
                     </table>
-                    {/* <button type="submit">Submit</button> */}
-                    <button type="submit">{data.id ? 'Update Account' : 'Add Account'}</button>
+
+                    <button type="submit" className='submit_table_data'>{data.id ? 'Update Account' : 'Add Account'}</button>
                 </form>
             </div>
         </div>

@@ -36,3 +36,9 @@
     align-items: center;
     justify-content: center;
 }
+.setups_acc_head{
+  font-weight:500;
+  margin-left: 1em;
+  color:#333333;
+  font-size: 17px;
+}

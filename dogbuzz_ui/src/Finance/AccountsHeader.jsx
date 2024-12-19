@@ -10,7 +10,7 @@ const AccountsHeader = () => {
         <title>Accounts Setup</title>
       </Helmet>
 
-      Account Setups
+      <span className='setups_acc_head'>Account Setups and Report section</span>
       <hr/>
       <div className="account-header-section">
         <NavLink 

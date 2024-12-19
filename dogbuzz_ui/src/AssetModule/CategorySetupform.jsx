@@ -8,6 +8,7 @@ const CategorySetupform = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [unit,setunit] = useState([]);
+  const [purchase, setPurchase] = useState([]);
  const [category, setCategory] = useState({
   categoryName: "",
   categoryDescription: "",
@@ -57,6 +58,36 @@ const CategorySetupform = () => {
       }
   };
     fetchUnitofMeasure();
+
+
+    const fetchPurchaseAccounts = async () => {
+      setLoading(true); // Assuming setLoading is a state to show loading status
+      try {
+          const response = await fetch("http://localhost:5000/FetchPurchaseAccount", {
+              method: "GET",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+          });
+  
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+  
+          const json = await response.json();
+          setPurchase(json);
+          console.log("Accounts:", json); // Log the actual data
+  
+      } catch (error) {
+          console.error('Error:', error);
+          setError('Failed to fetch purchase accounts');
+      } finally {
+          setLoading(false);
+      }
+  };
+  
+ 
+  fetchPurchaseAccounts();
   }, []);
 
 const handleCategoryChange =(e)=>{
@@ -127,9 +158,9 @@ const handleCategoryChange =(e)=>{
         <label htmlFor="assetAccount" className="form-label">Purchase Account:</label>
         <select id="assetAccount" onChange={handleCategoryChange} value={category.assetAccount} name="assetAccount" className="form-select" required>
           <option value="">Select Asset Account</option>
-          <option value="Short">Short</option>
-            <option value="Long">Long</option>
-            <option value="Curly">Curly</option>
+        {purchase.map((val,idx)=>(
+          <option key={idx} value={val.id}>{val.accountName}</option>
+        ))}
         </select>
 
         
