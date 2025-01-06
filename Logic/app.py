@@ -711,6 +711,583 @@ def update_purchase_account(id):
         cursor.close()
 
 
+# @app.route("/AddSalesAccount", methods=["POST"])
+# def add_sales_account():
+#     data = request.get_json()
+    
+    
+#     # Extracting the data from the request
+#     accountName = data.get("accountName")
+#     accountDescription = data.get("accountDescription")
+#     bankName = data.get("bankName")
+#     accountNumber = data.get("accountNumber")
+#     bankAddress = data.get("bankAddress")
+#     currency = data.get("currency")
+#     transactionLimits = data.get("transactionLimits")
+#     salesTaxApplicable = data.get("salesTaxApplicable")
+#     linkedCustomer = data.get("linkedCustomer")
+#     defaultPaymentMethod = data.get("defaultPaymentMethod")
+#     associatedBusinessUnit = data.get("associatedBusinessUnit")
+#     accountManager = data.get("accountManager")
+#     status = data.get("status")
+
+#     cursor = mysql.connection.cursor()
+
+#     # Check for existing account
+#     cursor.execute("SELECT * FROM salesaccounts WHERE accountName = %s AND accountNumber = %s", (accountName, accountNumber,))
+#     existing_account = cursor.fetchone()
+#     if existing_account:
+#         cursor.close()
+#         return jsonify({"error": "Sales account with this name and account number already exists"}), 409
+    
+#     try:
+#         # Insert new sales account
+#         cursor.execute("""
+#         INSERT INTO salesaccounts (
+#             accountName, accountDescription, bankName, accountNumber, bankAddress, currency, transactionLimits, salesTaxApplicable, linkedCustomer, defaultPaymentMethod, associatedBusinessUnit, accountManager, status
+#         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+#         """, (
+#             accountName,
+#             accountDescription,
+#             bankName,
+#             accountNumber,
+#             bankAddress,
+#             currency,
+#             transactionLimits,
+#             salesTaxApplicable,
+#             linkedCustomer,
+#             defaultPaymentMethod,
+#             associatedBusinessUnit,
+#             accountManager,
+#             status
+#         ))
+        
+#         mysql.connection.commit()  # Commit the transaction
+#         return jsonify({"message": "Sales account added successfully!"}), 201
+    
+#     except mysql.connection.Error as err:
+#         logging.error(f"Database error: {str(err)}")
+#         return jsonify({"error": f"Database error: {str(err)}"}), 500
+    
+#     except Exception as e:
+#         logging.error(f"An unexpected error occurred: {str(e)}")
+#         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    
+#     finally:
+#         cursor.close()  # Ensure the cursor is closed
+
+
+
+@app.route("/AddSalesAccount", methods=["POST"])
+def add_sales_account():
+    try:
+        # Extract data
+        data = request.get_json()
+        
+        required_fields = ["accountName", "accountNumber", "status"]
+
+        # Validate required fields
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"'{field}' is required."}), 400
+
+        # Extract variables
+        account_name = data.get('accountName')
+        account_number = data.get('accountNumber')
+        account_description = data.get('accountDescription')
+        bank_name = data.get('bankName')
+        bank_address = data.get('bankAddress')
+        currency = data.get('currency')
+        transaction_limits = data.get('transactionLimits')
+        sales_tax_applicable = data.get('salesTaxApplicable')
+        linked_customer = data.get('linkedCustomer')
+        default_payment_method = data.get('defaultPaymentMethod')
+        associated_business_unit = data.get('associatedBusinessUnit')
+        account_manager = data.get('accountManager')
+        status = data.get('status')
+
+        cursor = mysql.connection.cursor()
+
+        # Check for existing account
+        cursor.execute(
+            "SELECT * FROM salesaccounts WHERE accountName = %s AND accountNumber = %s",
+            (account_name, account_number),
+        )
+        existing_account = cursor.fetchone()
+
+        if existing_account:
+            cursor.close()
+            return jsonify({"error": "Sales account already exists."}), 409
+
+        # Insert new account
+        cursor.execute(
+            """
+            INSERT INTO salesaccounts (
+                accountName, accountDescription, bankName, accountNumber, bankAddress, currency, 
+                transactionLimits, salesTaxApplicable, linkedCustomer, defaultPaymentMethod, 
+                associatedBusinessUnit, accountManager, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                account_name, account_description, bank_name, account_number, bank_address, 
+                currency, transaction_limits, sales_tax_applicable, linked_customer, 
+                default_payment_method, associated_business_unit, account_manager, status
+            )
+        )
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"message": "Sales account added successfully!"}), 201
+
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
+        return jsonify({"error": "Check account number it could be already existing!"}), 500
+
+
+@app.route("/GetAllSalesAccounts",methods=["GET"])
+
+def get_all_sales_accounts():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM salesaccounts")
+        rows = cursor.fetchall()
+        acc_rows =[]
+        for row in rows:
+            acc_rows.append({
+                'id': row[0],
+                'accountName': row[3],
+                'accountDescription': row[1],
+                'bankName': row[7],
+                'accountNumber': row[4],
+                'bankAddress': row[6],
+                'currency': row[8],
+                'transactionLimits': row[13],
+                'salesTaxApplicable': row[11],
+                'linkedCustomer': row[10],
+                'defaultPaymentMethod': row[9],
+                'associatedBusinessUnit': row[5],
+                'accountManager': row[2],
+                'status':row[12]
+            })
+
+        return jsonify({
+            "message": "Fetched Successfully",
+            "data": acc_rows
+        })
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+    finally:
+        cursor.close()
+      
+            
+
+@app.route("/DeleteSalesAccount/<int:id>",methods=["DELETE"])  
+
+def delete_sales_account(id):
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM salesaccounts WHERE id = %s", (id,))
+        mysql.connection.commit()
+        return jsonify({"message": f"Sales account with ID {id} deleted successfully!"}), 200
+    
+    except mysql.connection.Error as err:
+
+
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+    
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    
+    finally:
+        cursor.close()
+
+
+
+@app.route("/EditSalesAccount/<int:id>", methods=["PUT"])
+def edit_sales_account(id):
+    try:
+        data = request.get_json()
+        account_name = data.get('accountName')
+        account_number = data.get('accountNumber')
+        account_description = data.get('accountDescription')
+        bank_name = data.get('bankName')
+        bank_address = data.get('bankAddress')
+        currency = data.get('currency')
+        transaction_limits = data.get('transactionLimits')
+        sales_tax_applicable = data.get('salesTaxApplicable')
+        linked_customer = data.get('linkedCustomer')
+        default_payment_method = data.get('defaultPaymentMethod')
+        associated_business_unit = data.get('associatedBusinessUnit')
+        account_manager = data.get('accountManager')
+        status = data.get('status')
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM salesaccounts WHERE id=%s", (id,))
+        account = cursor.fetchone()
+        if not account:
+            cursor.close()
+            return jsonify({"error": f"Account with ID {id} not found"}), 404
+
+        cursor.execute(
+            """
+            UPDATE salesaccounts SET
+                accountName=%s,
+                accountDescription=%s,
+                bankName=%s,
+                accountNumber=%s,
+                bankAddress=%s,
+                currency=%s,
+                transactionLimits=%s,
+                salesTaxApplicable=%s,
+                linkedCustomer=%s,
+                defaultPaymentMethod=%s,
+                associatedBusinessUnit=%s,
+                accountManager=%s,
+                status=%s
+            WHERE id=%s
+            """,
+            (
+                account_name, account_description, bank_name, account_number, bank_address,
+                currency, transaction_limits, sales_tax_applicable, linked_customer,
+                default_payment_method, associated_business_unit, account_manager, status, id
+            )
+        )
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"message": "Sales account updated successfully!"}), 200
+
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
+        return jsonify({"error": "An error occurred while updating the account."}), 500
+
+
+
+@app.route("/OtherAccountsAdd",methods=["POST"])
+
+def OtherAccountsAdd():
+    try:
+        data = request.get_json()
+        
+
+        account_name = data.get("accountName")
+        account_description = data.get("accountDescription")
+        bank_name = data.get("bankName")
+        account_number = data.get("accountNumber")
+        bank_address = data.get("bankAddress")
+        currency = data.get("currency")
+        expense_category = data.get("expenseCategory")
+        authorized_signatories = data.get("authorizedSignatories")
+        payment_frequency = data.get("paymentFrequency")
+        associated_department = data.get("associatedDepartment")
+        status = data.get("status")
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("Select * from otheraccounts where accountName = %s",(account_name,))
+        existing = cursor.fetchone()
+        if existing:
+            cursor.close()
+            return jsonify({"error": "Account already exists"}), 409
+
+        else:
+            cursor.execute("""INSERT INTO otheraccounts (accountName, accountDescription, bankName, accountNumber, bankAddress, currency, expenseCategory, authorizedSignatories, paymentFrequency, associatedDepartment, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (account_name, account_description, bank_name, account_number, bank_address, currency, expense_category, authorized_signatories, payment_frequency, associated_department, status))
+            mysql.connection.commit()
+            cursor.close()
+            return jsonify({"message": "Account added successfully"}), 201
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+    
+
+ 
+
+@app.route("/FetchOtherAccounts",methods=["GET"])
+
+def FetchOtherAccounts():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM otheraccounts")
+        rows = cursor.fetchall()
+        other_rows = []
+        for row in rows:
+            other_rows.append({
+                'id': row[0],
+                'accountName': row[2],
+                'accountDescription': row[1],
+                'bankName': row[7],
+                'accountNumber': row[3],
+                'bankAddress': row[6],
+                'currency': row[8],
+                'expenseCategory': row[9],
+                'authorizedSignatories': row[5],
+                'paymentFrequency': row[10],
+                'associatedDepartment': row[4],
+                'status': row[11]
+            })
+        return jsonify({
+            "message": "Fetched successfully",
+            "data": other_rows
+        })
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    finally:
+        cursor.close()
+
+
+@app.route("/DeleteOtherAccounts/<int:id>", methods=["DELETE"])
+
+def delete_other_accounts(id):
+        try:
+            cursor = mysql.connection.cursor()
+            cursor.execute("DELETE FROM otheraccounts WHERE id = %s", (id,))
+            mysql.connection.commit()
+            return jsonify({"message": f"Miscellaneous account with ID {id} deleted successfully!"}), 200
+    
+        except mysql.connection.Error as err:
+
+
+            logging.error(f"Database error: {str(err)}")
+            return jsonify({"error": f"Database error: {str(err)}"}), 500
+    
+        except Exception as e:
+            logging.error(f"An unexpected error occurred: {str(e)}")
+            return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    
+        finally:
+            cursor.close()
+
+# @app.route("/OtherAccountsEdit/<int:id>",methods=["GET"])
+# def edit_other_account(id):
+#     try:
+#         data = request.get_json()
+#         account_name = data.get("accountName")
+#         account_description = data.get("accountDescription")
+#         bank_name = data.get("bankName")
+#         account_number = data.get("accountNumber")
+#         bank_address = data.get("bankAddress")
+#         currency = data.get("currency")
+#         expense_category = data.get("expenseCategory")
+#         authorized_signatories = data.get("authorizedSignatories")
+#         payment_frequency = data.get("paymentFrequency")
+#         associated_department = data.get("associatedDepartment")
+#         status = data.get("status")
+
+#         cursor = mysql.connection.cursor()
+#         cursor.execute("SELECT * FROM otheraccounts WHERE id=%s",(id,))
+#         existent = cursor.fetchone()
+#         if not existent:
+#             return jsonify({"error":"No account match the id specified"})
+#         else:
+#             cursor.execute("
+#                 update otheraccounts set 
+#                 accountDescription=%s,
+#                 accountName=%s,
+#                 accountNumber=%s,
+#                 associatedDepartment=%s,
+#                 authorizedSignatories=%s,
+#                 bankAddress=%s,
+#                 bankName=%s,
+#                 currency=%s,
+#                 expenseCategory=%s,
+#                 paymentFrequency=%s,
+#                 status=%s
+#                 ",(account_description,account_name,account_number,associated_department,authorized_signatories,bank_address,bank_name,currency,expense_category,payment_frequency,status,))
+#                 mysql.connection.commit()
+#                 return jsonify({"message":  "account updated successfully"})
+#     except Exception as e:
+#         logging.error(f"Error: {str(e)}")
+#         return jsonify({"error": "An error occurred while updating the account."}), 500
+#     finally:
+#         cursor.close()
+
+
+
+@app.route("/OtherAccountsEdit/<int:id>", methods=["PUT"])
+def edit_other_account(id):
+    try:
+        # Parse incoming JSON data
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid input: No data provided"}), 400
+
+        # Extract fields using `data.get()`
+        account_name = data.get("accountName")
+        account_description = data.get("accountDescription")
+        bank_name = data.get("bankName")
+        account_number = data.get("accountNumber")
+        bank_address = data.get("bankAddress")
+        currency = data.get("currency")
+        expense_category = data.get("expenseCategory")
+        authorized_signatories = data.get("authorizedSignatories")
+        payment_frequency = data.get("paymentFrequency")
+        associated_department = data.get("associatedDepartment")
+        status = data.get("status")
+
+        # Check if the account exists
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM otheraccounts WHERE id = %s", (id,))
+        existent = cursor.fetchone()
+        if not existent:
+            return jsonify({"error": "No account matches the specified ID"}), 404
+
+        # Update the account
+        cursor.execute(
+            """
+            UPDATE otheraccounts SET 
+                accountDescription = %s,
+                accountName = %s,
+                accountNumber = %s,
+                associatedDepartment = %s,
+                authorizedSignatories = %s,
+                bankAddress = %s,
+                bankName = %s,
+                currency = %s,
+                expenseCategory = %s,
+                paymentFrequency = %s,
+                status = %s
+            WHERE id = %s
+            """,
+            (
+                account_description, account_name, account_number, associated_department,
+                authorized_signatories, bank_address, bank_name, currency,
+                expense_category, payment_frequency, status, id
+            )
+        )
+        mysql.connection.commit()
+
+        return jsonify({"message": "Account updated successfully"}), 200
+
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
+        return jsonify({"error": "An error occurred while updating the account."}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+
+
+
+
+@app.route("/add_currency", methods=["POST"])
+def add_currency():
+    cursor = mysql.connection.cursor()
+    try:
+        data = request.get_json()
+        currency_name = data.get("currencyName")
+        currency_symbol = data.get("currencySymbol")
+        currency_abbreviation = data.get("currencyAbbreviation")
+
+        # Validate input
+        if not currency_name or not currency_symbol or not currency_abbreviation:
+            return jsonify({"error": "All fields are required!"}), 400
+
+        # Check if currency already exists
+        cursor.execute("SELECT * FROM currency WHERE currencyName = %s", (currency_name,))
+        if cursor.fetchone():
+            return jsonify({"error": "Currency already exists!"}), 409
+
+        # Insert new currency
+        cursor.execute(
+            "INSERT INTO currency (currencyName, currencyAbbreviation, currencySymbol) VALUES (%s, %s, %s)",
+            (currency_name, currency_abbreviation, currency_symbol)
+        )
+        mysql.connection.commit()
+        return jsonify({"message": "Currency added successfully!"}), 201
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+    finally:
+        cursor.close()
+
+
+@app.route("/fetch_currency", methods=["GET"])
+def fetch_currency():
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("SELECT * FROM currency")
+        currencies = cursor.fetchall()
+        fetched_currency = []
+        
+        for curr in currencies:
+            fetched_currency.append({
+                "id": curr[0],
+                "currencyName": curr[1],
+                "currencyAbbreviation": curr[2],
+                "currencySymbol": curr[3]
+            })
+        
+        return jsonify({
+            "message": "Fetched successfully",
+            "data": fetched_currency
+        }), 200
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+    finally:
+        cursor.close()
+
+
+@app.route("/edit_currency/<int:id>",methods=["PUT"])
+def edit_currency(id):
+    cursor = mysql.connection.cursor()
+    try:
+        data = request.get_json()
+        currency_name = data.get("currencyName")
+        currency_symbol = data.get("currencySymbol")
+        currency_abbreviation = data.get("currencyAbbreviation")
+
+        cursor.execute("SELECT * FROM currency WHERE id = %s",(id,))
+        exist=cursor.fetchone()
+        if not exist:
+            return jsonify({"error": "No currency found with this ID"}), 404
+        else:
+            cursor.execute("UPDATE currency SET currencyName=%s, currencySymbol=%s, currencyAbbreviation=%s WHERE id=%s",(currency_name, currency_symbol, currency_abbreviation, id))
+            mysql.connection.commit()
+            return jsonify({"message": "Currency updated successfully"}), 200
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
+        return jsonify({"error": "An error occurred while updating the account."}), 500
+
+    finally:
+            cursor.close()
+
+
+
+@app.route("/delete_currency/<int:id>", methods=["DELETE"])
+def delete_currency(id):
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("SELECT * FROM currency WHERE id = %s", (id,))
+        exist = cursor.fetchone()
+        if not exist:
+            return jsonify({"error": "Could not find currency in database matching similar id"}), 404
+        else:
+            cursor.execute("DELETE FROM currency WHERE id = %s", (id,))
+            mysql.connection.commit()
+            return jsonify({"message": "Successfully deleted currency"}), 200
+
+    except mysql.connection.Error as err:
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+    finally:
+        cursor.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
