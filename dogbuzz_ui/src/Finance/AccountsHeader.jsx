@@ -35,6 +35,16 @@ const AccountsHeader = () => {
           <h6 className="account-header-title">Miscellaneous</h6>
         </NavLink>
         
+
+
+
+        <NavLink 
+          to="/finance" 
+          className="back-btn" 
+          activeClassName="active"
+        >
+          <h6 className="account-header-title">Finance Hub</h6>
+        </NavLink>
       </div>
       <div className='rectangle'></div>
     </div>

@@ -12,6 +12,11 @@
     text-decoration: none; /* Remove underline */
     background-color: #DEE7EC;
   }
+  .back-btn{
+    text-decoration: none; /* Remove underline */
+    background-color: #DEE7EC;
+    
+  }
   
   .account_setup.active {
     background-color: #006E7A; /* Background for active link */
@@ -27,7 +32,7 @@
   }
   .account-bg{
     background-color: #f2f2f2;
-    height: 100%;
+    height: 100dvh;;
     
 }
 .acc-containers{
@@ -41,4 +46,10 @@
   margin-left: 1em;
   color:#333333;
   font-size: 17px;
+}
+
+.clickable-cell {
+  cursor: pointer;
+  color: #006E7A;
+  
 }

@@ -1,4 +1,4 @@
-import React, { useState,useEffect} from 'react';
+import React, { useState,useEffect,useRef} from 'react';
 import AccountsHeader from './AccountsHeader';
 import Delete from "../Assets/DeleteIcon.svg"
 import Edit from "../Assets/EditIcon.svg"
@@ -20,7 +20,11 @@ const PurchaseAccount = () => {
         status: "active",
         reimbursementEligibility: false,
     });
-
+const modal = useRef()
+const [success, setSuccess] = useState("");
+const [error, setError] = useState("");
+const [popup, setPopup] = useState(false);
+const [rowdata, setRowdata] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 const [purchaseAccounts, setPurchaseAccounts] = useState([]);
@@ -50,8 +54,28 @@ const fetchPurchaseAccounts = async () => {
 
     useEffect(() => {
         fetchPurchaseAccounts();
+        fetchCurrency()
+
+        const handleClickOutside = (e) =>{
+            if(modal.current&&!modal.current.contains(e.target)){
+                    setRowdata(null)
+                    setPopup(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+            return()=>{
+                document.removeEventListener('mousedown', handleClickOutside)
+            }
+        
     }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setError('');
+      setSuccess('');
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [error, success]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -82,8 +106,8 @@ const handleAdd = async (e) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         } else {
-            alert("Purchase Account updated successfully!");
-            fetchPurchaseAccounts(); // Refresh the accounts list
+            
+             // Refresh the accounts list
             setData({
                 id: null,
                 accountName: "",
@@ -100,6 +124,7 @@ const handleAdd = async (e) => {
                 status: "active",
                 reimbursementEligibility: false,
             }); // Clear form after submit
+            fetchPurchaseAccounts();
         }
     } catch (error) {
         console.error("Error adding/updating purchase account:", error);
@@ -128,8 +153,27 @@ const handleAdd = async (e) => {
             setData({ ...account });
         }
     };
-
-
+    const [currencies, setCurrencies] = useState([]);
+    const fetchCurrency = async () => {
+        try {
+          const response = await fetch("http://localhost:5000/fetch_currency", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+          });
+    
+          const data = await response.json();
+          if (response.ok) {
+            setCurrencies(data.data);
+            setSuccess(data.message);
+            setError("");
+          } else {
+            setSuccess("");
+            setError(data.error);
+          }
+        } catch (err) {
+          setError("Error fetching currency, check your internet connection!");
+        }
+      };
       // Pagination Logic
       const indexOfLastRow = currentPage * rowsPerPage;
       const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -158,6 +202,25 @@ const handleAdd = async (e) => {
           }}
     };
 
+
+    const handlepopup =(passeddata)=>{
+        setPopup(!popup)
+        setRowdata(passeddata)
+    }
+const handlePrint =()=>{
+    const printSec = document.getElementById('purchase-row').innerHTML
+    const originalBody =document.body.innerHTML
+
+    document.body.innerHTML = printSec
+    window.print()
+    document.body.innerHTML = originalBody
+    window.location.reload();
+}
+
+const handleCancelPrint =()=>{
+    setRowdata(null)
+    setPopup(popup)
+}
     return (
         <div className='account-bg'>
     
@@ -189,7 +252,7 @@ const handleAdd = async (e) => {
                         {currentRows.length > 0 ? (
                             currentRows.map((purchaseAccount, index) => (
                                 <tr key={index} style={handleSmartBg(index)} className='purchaseacc_row'>
-                                    <td>{index + 1}</td>
+                                    <td className="clickable-cell" onClick={()=>handlepopup(purchaseAccount)}>{index + 1}</td>
                                     <td>{purchaseAccount.accountName}</td>
                                     <td>{purchaseAccount.accountDescription}</td>
                                     <td>{purchaseAccount.bankName}</td>
@@ -246,6 +309,72 @@ const handleAdd = async (e) => {
 
 
 </table>
+{rowdata && (<div id="purchase-row" ref={modal}>
+    <table className="modal-table">
+    <p className='order-title'>Bank Order #{rowdata.id}</p>
+    <tbody>
+                                    <tr>
+                                        <td><strong>Account Name:</strong></td>
+                                        <td>{rowdata.accountName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Account Description:</strong></td>
+                                        <td>{rowdata.accountDescription}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Bank Name:</strong></td>
+                                        <td>{rowdata.bankName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Account Number:</strong></td>
+                                        <td>{rowdata.accountNumber}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Bank Address:</strong></td>
+                                        <td>{rowdata.bankAddress}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Currency:</strong></td>
+                                        <td>{rowdata.currency}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Payment Terms:</strong></td>
+                                        <td>{rowdata.paymentTerms}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Preferred Supplier:</strong></td>
+                                        <td>{rowdata.preferredVendors}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Procurement Limits:</strong></td>
+                                        <td>{rowdata.procurementLimits}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Associated Business Unit:</strong></td>
+                                        <td>{rowdata.associatedBusinessUnit}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Account Manager:</strong></td>
+                                        <td>{rowdata.accountManager}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Status:</strong></td>
+                                        <td>{rowdata.status}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Reimbursement Eligibility:</strong></td>
+                                        <td>{rowdata.reimbursementEligibility?"Eligible":"Not Eligible"}</td>
+                                    </tr>
+                                </tbody>
+    </table>
+    <span className='btn-sec'>
+                            <button type='button' onClick={handlePrint} className='print-button'>Print</button>
+                            <button type='button' onClick={handleCancelPrint} className='pagenavbutton'>Cancel</button>
+                            </span>
+</div>)}
+{error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
+
 
                 <form onSubmit={handleAdd}>
                     <table className='account-table-input'>
@@ -325,12 +454,9 @@ const handleAdd = async (e) => {
                                         required
                                     >
                                         <option value="">Select Currency</option>
-                                        <option value="KES">KES</option>
-                                        <option value="USD">USD</option>
-                                        <option value="EUR">EUR</option>
-                                        <option value="GBP">GBP</option>
-                                        <option value="JPY">JPY</option>
-                                        <option value="AUD">AUD</option>
+                                        {currencies.map((curr,idx)=>(
+                                            <option key={idx} value={curr.currencyAbbreviation}>{curr.currencyName}</option>
+                                        ))}
                                     </select>
                                 </td>
                             </tr>

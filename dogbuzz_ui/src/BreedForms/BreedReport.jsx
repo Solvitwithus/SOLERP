@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "../Breedformstyles/Breedreport.css";
 import Delete from "../Assets/DeleteIcon.svg";
 import Edit from "../Assets/EditIcon.svg";
-
+import { Helmet } from "react-helmet";
 const BreedReport = () => {
   const reportRef = useRef();
   const [breeds, setBreeds] = useState([]);
@@ -106,8 +106,25 @@ else{
 }
   }
 
+
+  const handlePrint = () => {
+    const printContent = document.getElementById('breed-details').innerHTML;
+    const originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+
+    window.location.reload();
+};
+
+
+
   return (
     <div className="breed_report">
+      <Helmet>
+        <title>Breed Report</title>
+      </Helmet>
       <h5 className="report_head">Breed Report</h5>
       <p className="numberofbreeds">
         You have <span className="no_of_breeds">{numberofbreeds}</span> breeds
@@ -195,7 +212,7 @@ else{
       )}
 
 {selectedBreed && (
-        <div className="breed-details" ref={reportRef}>
+        <div id="breed-details" ref={reportRef}>
           <h3>Breed Details</h3>
           <p><strong>Breed Name:</strong> {selectedBreed.breedName}</p>
           <p><strong>Breed Code:</strong> {selectedBreed.breedCode}</p>
@@ -208,12 +225,15 @@ else{
           <p><strong>Temperament:</strong> {selectedBreed.temperament}</p>
           <p><strong>Grooming Needs:</strong> {selectedBreed.groomingNeeds}</p>
           <p><strong>Energy Level:</strong> {selectedBreed.energyLevel}</p>
+          <button onClick={handlePrint} className="print-button">Print</button>
         </div>
+        
       )}
 
       <div className="button-container">
         <button onClick={fetchBreeds}>Refresh Breeds</button>
         <button onClick={handleBack}>Back</button>
+        
       </div>
     </div>
   );

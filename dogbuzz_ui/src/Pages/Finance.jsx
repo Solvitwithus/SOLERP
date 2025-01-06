@@ -8,7 +8,7 @@ const Inventory = () => {
 
   const Leftinventorysetup = [
     { name: 'Accounts', path: '/finance/purchaseaccountsetup' },
-    { name: 'Currency Setup', path: '/dynamite-breed-list' },
+    { name: 'Currency Setup', path: '/finance/currencysetup' },
     { name: 'Sales Account', path: '/dynamite-breed-group-setup' },
     { name: 'Dynamite Breed Group List', path: '/dynamite-breed-group-list' },
     { name: 'Dynamite Breed Group Membership', path: '/dynamite-breed-group-membership' },

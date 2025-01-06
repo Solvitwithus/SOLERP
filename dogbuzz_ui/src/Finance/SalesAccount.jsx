@@ -1,10 +1,11 @@
 
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import AccountsHeader from "./AccountsHeader";
 import "./SalesAccount.css";
 import Delete from "../Assets/DeleteIcon.svg"
 import Edit from "../Assets/EditIcon.svg"
 const SalesAccount = () => {
+    const modal = useRef()
     const initialState = {
         accountName: "",
         accountDescription: "",
@@ -20,7 +21,8 @@ const SalesAccount = () => {
         accountManager: "",
         status: "active",
     };
-
+    const [ismodalOpen, setIsodalOpen] = useState(false);
+    const [salesrowdata, setsalesrowdata] = useState(null);
     const [data, setData] = useState(initialState);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -53,8 +55,43 @@ const SalesAccount = () => {
         }
     }
 
+        const [currencies, setCurrencies] = useState([]);
+        const fetchCurrency = async () => {
+            try {
+              const response = await fetch("http://localhost:5000/fetch_currency", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+              });
+        
+              const data = await response.json();
+              if (response.ok) {
+                setCurrencies(data.data);
+                setSuccess(data.message);
+                setError("");
+              } else {
+                setSuccess("");
+                setError(data.error);
+              }
+            } catch (err) {
+              setError("Error fetching currency, check your internet connection!");
+            }
+          };
+
     useEffect(()=>{
         fetchSalesAccounts();
+        fetchCurrency()
+
+        const handleClickOutSide = (e) =>{
+            if(modal.current && !modal.current.contains(e.target)){
+                setIsodalOpen(false)
+                setsalesrowdata(null)
+            }
+        
+        }
+        document.addEventListener('mousedown',handleClickOutSide)
+        return ()=>{
+            document.removeEventListener('mousedown',handleClickOutSide)
+        }
     },[])
 
     // Handle form submission
@@ -208,13 +245,30 @@ const SalesAccount = () => {
               }
           };
 
+          const handleindividualRowDisplay =(passeddata)=>{
+            setIsodalOpen(ismodalOpen)
+            setsalesrowdata(passeddata)
+          }
+const handlePrint =()=>{
+    const printableRow = document.getElementById('salesaccount-row').innerHTML
+    const originalbody = document.body.innerHTML
+    document.body.innerHTML = printableRow
+    window.print()
+    document.body.innerHTML = originalbody
+    window.location.reload()
+}
+
+const handleCancelPrint = ()=>{
+    setIsodalOpen(!ismodalOpen)
+    setsalesrowdata(null)
+}
     return (
         <div className='account-bg'>
             <AccountsHeader />
             <div className='acc-containers'>
                 <table>
                     <thead>
-                        <tr  className='purchaseacc_tableheads_report'>
+                    <tr className='purchaseacc_tableheads_report'>
                             <th>No:</th>
                             <th>Account Name</th>
                             <th>Account Description</th>
@@ -227,8 +281,9 @@ const SalesAccount = () => {
                             <th>Linked Customer</th>
                             <th>Default Payment Method</th>
                             <th>Associated Business Unit</th>
-                            <th>Account Manager</th>
+                           
                             <th>Status</th>
+                            <th>Account Manager</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -236,7 +291,7 @@ const SalesAccount = () => {
                         
                         {currentRows.length > 0?currentRows.map((account,index)=>(
                             <tr key={index} style={handleSmartBg(index)} className='purchaseacc_row'>
-                            <td>{index+1}</td>
+                            <td className="clickable-cell" onClick={()=>handleindividualRowDisplay(account)}>{index+1}</td>
                             <td>{account.accountName}</td>
                             <td>{account.accountDescription}</td>
                             <td>{account.bankName}</td>
@@ -284,6 +339,70 @@ const SalesAccount = () => {
                         </tr>
                     </tbody>
                 </table>
+
+                {salesrowdata && (<div id="salesaccount-row" ref={modal}>
+                    <table className="modal-table">
+                    <p className='order-title'>Bank Order #{salesrowdata.id}</p>
+                    <tbody>
+                                    <tr>
+                                        <td><strong>Account Name:</strong></td>
+                                        <td>{salesrowdata.accountName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Account Description:</strong></td>
+                                        <td>{salesrowdata.accountDescription}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Bank Name:</strong></td>
+                                        <td>{salesrowdata.bankName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Account Number:</strong></td>
+                                        <td>{salesrowdata.accountNumber}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Bank Address:</strong></td>
+                                        <td>{salesrowdata.bankAddress}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Currency:</strong></td>
+                                        <td>{salesrowdata.currency}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Transaction Limits:</strong></td>
+                                        <td>{salesrowdata.transactionLimits}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sales Tax Applicable:</strong></td>
+                                        <td>{salesrowdata.salesTaxApplicable ? "True" : "False"}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Linked Customer:</strong></td>
+                                        <td>{salesrowdata.linkedCustomer}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Status:</strong></td>
+                                        <td>{salesrowdata.status}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Default Payment Method:</strong></td>
+                                        <td>{salesrowdata.defaultPaymentMethod}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Associated Business Unit:</strong></td>
+                                        <td>{salesrowdata.associatedBusinessUnit}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Account Manager:</strong></td>
+                                        <td>{salesrowdata.accountManager}</td>
+                                    </tr>
+                                </tbody>
+                    </table>
+                    <span className='btn-sec'>
+                            <button type='button' onClick={handlePrint} className='print-button'>Print</button>
+                            <button type='button' onClick={handleCancelPrint} className='pagenavbutton'>Cancel</button>
+                            </span>
+                </div>)}
                 <form onSubmit={handleAdd}>
                     <table className='account-table-input'>
                         <tbody>
@@ -362,12 +481,9 @@ const SalesAccount = () => {
                                         required
                                     >
                                         <option value="">Select Currency</option>
-                                        <option value="KES">KES</option>
-                                        <option value="USD">USD</option>
-                                        <option value="EUR">EUR</option>
-                                        <option value="GBP">GBP</option>
-                                        <option value="JPY">JPY</option>
-                                        <option value="AUD">AUD</option>
+                                        {currencies.map((curr,idx)=>(
+                                            <option key={idx} value={curr.currencyAbbreviation}>{curr.currencyName}</option>
+                                        ))}
                                     </select>
                                 </td>
                             </tr>

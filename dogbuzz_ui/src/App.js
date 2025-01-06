@@ -24,6 +24,7 @@ import UnitofMeasurement from "./ItemsandInventory/UnitofMeasurement";
 import SalesAccount from "./Finance/SalesAccount";
 import PurchaseAccount from "./Finance/PurchaseAccount";
 import OtherAccounts from "./Finance/OtherAccounts";
+import Currency from "./Finance/Currency";
 
 
 
@@ -241,6 +242,17 @@ function App() {
             element={
               <ProtectedRoute>
                 <SalesAccount/> 
+              </ProtectedRoute>
+            }
+          /> 
+
+
+<Route
+            exact
+            path="/finance/currencysetup"
+            element={
+              <ProtectedRoute>
+                <Currency/> 
               </ProtectedRoute>
             }
           /> 

@@ -15,12 +15,36 @@ const CategorySetupform = () => {
   categoryTaxType: "",
   categoryUnitOfMeasure:"",
   ExcludefromSale:false,
+  ExcludefromPurchase:false,
   salesAccount:"",
   assetAccount:"",
-  depreciationAccount:"",
   workArea:""
 
  });
+const [salesaccounts, setSalesaccounts] = useState([]);
+const fetchSalesAccounts = async()=>{
+  try {
+      const response = await fetch("http://localhost:5000/GetAllSalesAccounts",{
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+          throw new Error("Something went wrong!");
+      }
+      const salesAccounts = await response.json();
+      setSalesaccounts(salesAccounts.data);
+     console.log(salesAccounts.data);
+     
+      
+  } catch (err) {
+      console.error(err);
+  }
+}
+ 
+
+
+
+
   useEffect(() => {
     const fetchTaxTypes = async () => {
       try {
@@ -88,6 +112,8 @@ const CategorySetupform = () => {
   
  
   fetchPurchaseAccounts();
+
+  fetchSalesAccounts()
   }, []);
 
 const handleCategoryChange =(e)=>{
@@ -123,7 +149,7 @@ const handleCategoryChange =(e)=>{
         <input type="text" id="categoryName" value={category.categoryName} name="categoryName" className="form-input" onChange={handleCategoryChange} required />
 
         <label htmlFor="categoryDescription" className="form-label">Category Description:</label>
-        <textarea id="categoryDescription" onChange={handleCategoryChange} value={category.categoryDescription} name="categoryDescription" className="form-textarea" rows="4" cols="50" required />
+        <textarea id="categoryDescription" onChange={handleCategoryChange} value={category.categoryDescription} name="categoryDescription" className="form-textarea" rows="4" cols="50"/>
 
         <label htmlFor="categoryTaxType" className="form-label">Category Tax Type:</label>
         <select id="categoryTaxType" onChange={handleCategoryChange} name="categoryTaxType" className="form-select" required>
@@ -147,17 +173,24 @@ const handleCategoryChange =(e)=>{
           <label htmlFor="excludeFromSale" className="form-checkbox-label">Exclude from Sale</label>
         </div>
 
-        <label htmlFor="salesAccount" className="form-label">Sales Account:</label>
-        <select id="salesAccount" onChange={handleCategoryChange} value={category.salesAccount} name="salesAccount" className="form-select" required>
+        <div className="form-checkbox">
+          <input type="checkbox" onChange={handleCategoryChange} checked={category.ExcludefromPurchase} id="excludeFromSale" className="form-checkbox-input" name="ExcludefromPurchase" />
+          <label htmlFor="excludeFromSale" className="form-checkbox-label">Exclude from Purchase</label>
+        </div>
+
+        <label htmlFor="salesAccount" className="form-label">Miscell Account:</label>
+        <select id="salesAccount" onChange={handleCategoryChange} value={category.salesAccount} name="salesAccount" className="form-select" >
           <option value="">Select Sales Account</option>
-          <option value="Short">Short</option>
-            <option value="Long">Long</option>
-            <option value="Curly">Curly</option>
+          {salesaccounts.map((val,idx)=>(
+            <option key={idx} value={val.id}>{val.accountName}</option>
+          ))}
         </select>
 
+
+
         <label htmlFor="assetAccount" className="form-label">Purchase Account:</label>
-        <select id="assetAccount" onChange={handleCategoryChange} value={category.assetAccount} name="assetAccount" className="form-select" required>
-          <option value="">Select Asset Account</option>
+        <select id="assetAccount" onChange={handleCategoryChange} value={category.assetAccount} name="assetAccount" className="form-select" >
+          <option value="">Select Purchase Account</option>
         {purchase.map((val,idx)=>(
           <option key={idx} value={val.id}>{val.accountName}</option>
         ))}
