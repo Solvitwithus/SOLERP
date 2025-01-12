@@ -8,11 +8,11 @@ import Cookie from 'js-cookie'
 
 const ReusableMenu = () => {
     const location = useLocation();
-    const [username, setUsername] = useState('Guest');
+    const [username, setUsername] = useState('Intruder!!!');
 
     useEffect(() => {
       const user = Cookie.get('username')
-      setUsername(user || 'Guest');
+      setUsername(user || 'Intruder!!!');
     },[]);
 
 

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response,send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_mysqldb import MySQL
@@ -8,6 +8,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.utils import secure_filename
+
 
 
 app = Flask(__name__)
@@ -70,7 +71,7 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    print(username,"tryna hit endpoint")
+    
     if not username or not password:
         return jsonify({"message": "Username and password are required!"}), 400
 
@@ -1288,6 +1289,258 @@ def delete_currency(id):
 
     finally:
         cursor.close()
+
+
+@app.route("/PostCategory",methods=["POST"])
+def post_Category():
+
+    try:
+        cursor = mysql.connection.cursor()
+        data = request.get_json()
+
+        category_name = data.get("categoryName")
+        category_description = data.get("categoryDescription")
+        category_tax_type = data.get("categoryTaxType")
+        category_unit_of_measure = data.get("categoryUnitOfMeasure")
+        exclude_from_sale = data.get("ExcludefromSale", False)  # Default to False if not provided
+        exclude_from_purchase = data.get("ExcludefromPurchase", False)  # Default to False if not provided
+        sales_account = data.get("salesAccount")
+        purchase_account = data.get("purchaseAccount")
+        work_area = data.get("workArea")
+
+        cursor.execute("Select * from itemcategory where categoryName = %s",(category_name,))
+        exist = cursor.fetchone()
+
+        if exist:
+            return jsonify({"error": "A category with this name already exists"}), 409
+        else:
+            cursor.execute("""INSERT INTO itemcategory (categoryName, categoryDescription, categoryTaxType, categoryUnitOfMeasure, excludeFromSale, excludeFromPurchase, salesAccount, purchaseAccount, workArea) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",(category_name, category_description, category_tax_type, category_unit_of_measure, exclude_from_sale, exclude_from_purchase, sales_account, purchase_account, work_area))
+            mysql.connection.commit()
+            return jsonify({"message": "Category added successfully"}), 201
+    except mysql.connector.Error as err:
+    
+        logging.error(f"Database error: {str(err)}")
+
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+
+    except Exception as e:
+    
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+    finally:
+    
+        cursor.close()
+
+
+@app.route("/FetchItemCategories",methods=["GET"])
+def FetchItemCategories():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM itemcategory")
+        categories = cursor.fetchall()
+        fetched_categories = []
+        for cat in categories:
+            fetched_categories.append({
+                "id": cat[0],
+                "categoryName": cat[1],
+                "categoryDescription": cat[2],
+                "categoryTaxType": cat[3],
+                "categoryUnitOfMeasure": cat[4],
+                "excludeFromSale": cat[5],
+                "excludeFromPurchase": cat[6],
+                "salesAccount": cat[7],
+                "purchaseAccount": cat[8],
+                "workArea": cat[9],
+                "timecol":cat[10]
+
+            })
+        return jsonify({
+            "message": "Fetched successfully",
+            "data": fetched_categories
+        }), 200
+    except mysql.connector.Error as err:
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    finally:
+        cursor.close()
+
+
+@app.route("/DeleteItemCategories/<int:id>",methods=["DELETE"])
+
+def DeleteItemCategories(id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM itemcategory WHERE id = %s", (id,))
+        exist = cursor.fetchone()
+        if not exist:
+            return jsonify({"error": "No category found with this ID"}), 404
+        else:
+            cursor.execute("DELETE FROM itemcategory WHERE id = %s", (id,))
+            mysql.connection.commit()
+            return jsonify({"message": "Successfully deleted category"}), 200
+    except mysql.connector.Error as err:
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    finally:
+        cursor.close()
+        
+
+
+@app.route("/UpdateCategory/<int:id>",methods=["PUT"])
+def update_category(id):
+    try:
+        cursor = mysql.connection.cursor()
+        data = request.get_json()
+        category_name = data.get("categoryName")
+        category_description = data.get("categoryDescription")
+        category_tax_type = data.get("categoryTaxType")
+        category_unit_of_measure = data.get("categoryUnitOfMeasure")
+        exclude_from_sale = data.get("ExcludefromSale", False)  # Default to False if not provided
+        exclude_from_purchase = data.get("ExcludefromPurchase", False)  # Default to False if not provided
+        sales_account = data.get("salesAccount")
+        purchase_account = data.get("purchaseAccount")
+        work_area = data.get("workArea")
+
+        cursor.execute("SELECT * FROM itemcategory WHERE id = %s", (id,))
+        exist = cursor.fetchone()
+        if not exist:
+
+            return jsonify({"error": "No category found with this ID"}), 404
+        else:
+            cursor.execute("""UPDATE itemcategory SET categoryName=%s, categoryDescription=%s, categoryTaxType=%s, categoryUnitOfMeasure=%s, excludeFromSale=%s, excludeFromPurchase=%s, salesAccount=%s, purchaseAccount=%s, workArea=%s WHERE id=%s""",(category_name, category_description, category_tax_type, category_unit_of_measure, exclude_from_sale, exclude_from_purchase, sales_account, purchase_account, work_area, id))
+            mysql.connection.commit()
+            return jsonify({"message": "Category updated successfully"}), 200        
+
+
+    
+    except mysql.connection.Error as err:
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    finally:
+        cursor.close()
+
+
+@app.route("/AddItem", methods=["POST"])
+def add_item():
+    try:
+        cursor = mysql.connection.cursor()
+        data = request.get_json()
+
+        # Extract data from request
+        item_name = data.get("itemName")
+        item_code = data.get("itemCode")
+        item_description = data.get("itemDescription")
+        category = data.get("category")
+        tax_type = data.get("taxType")
+        item_type = data.get("itemType")
+        exclude_from_sale = data.get("excludeFromSale", False)
+        exclude_from_purchase = data.get("excludeFromPurchase", False)
+        image = data.get("image")
+        dimension = data.get("dimension")
+        sales_account = data.get("salesAccount")
+        purchase_account = data.get("purchaseAccount")
+        other_account = data.get("otherAccount")
+        status = data.get("status")
+        unit_of_measure = data.get("unitOfMeasure")
+        # Check for existing item
+        cursor.execute("SELECT * FROM items WHERE itemName = %s", (item_name,))
+        exist = cursor.fetchone()
+        if exist:
+            return jsonify({"error": "An item with this name already exists"}), 409
+
+        # Insert new item
+        insert_query = """
+            INSERT INTO items 
+            (itemName, itemCode, itemDescription, category, taxType, itemType, 
+             excludeFromSale, excludeFromPurchase, image, dimension, 
+             salesAccount, purchaseAccount, otherAccount, status, unitOfMeasure) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
+        """
+        cursor.execute(insert_query, (
+            item_name, item_code, item_description, category, tax_type, item_type, 
+            exclude_from_sale, exclude_from_purchase, image, dimension, 
+            sales_account, purchase_account, other_account, status,unit_of_measure
+        ))
+        mysql.connection.commit()
+        return jsonify({"message": "Item added successfully"}), 201
+
+    except mysql.connection.Error as err:
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+    finally:
+        cursor.close()
+
+import base64
+
+@app.route("/fetchItems", methods=["GET"])
+def get_items():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM items")
+        items = cursor.fetchall()
+        fetched_items = []
+        
+        for item in items:
+            image_base64 = None
+            if item[9]:  # Check if image exists
+                image_base64 = base64.b64encode(item[9]).decode('utf-8')  # Convert bytes to Base64
+            
+            fetched_items.append({
+                "id": item[0],
+                "itemName": item[1],
+                "itemCode": item[2],
+                "itemDescription": item[3],
+                "category": item[4],
+                "taxType": item[5],
+                "itemType": item[6],
+                "excludeFromSale": item[7],
+                "excludeFromPurchase": item[8],
+                "image": image_base64,  # Add the encoded image
+                "dimension": item[10],
+                "salesAccount": item[11],
+                "purchaseAccount": item[12],
+                "otherAccount": item[13],
+                "status": item[14],
+                "unitOfMeasure": item[15]
+            })
+
+        return jsonify({
+            "message": "Fetched successfully",
+            "data": fetched_items
+        }), 200
+    except mysql.connection.Error as err:
+        logging.error(f"Database error: {str(err)}")
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    finally:
+        cursor.close()
+
+
+
+
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -4,6 +4,7 @@
     gap: 10px;
     margin-left: 3em;
     margin-top: 5px;
+    
   }
   
   .account_setup {
@@ -11,6 +12,11 @@
     
     text-decoration: none; /* Remove underline */
     background-color: #DEE7EC;
+    color: black;
+  }
+  .account_setup:hover {
+    background-color:#b3c1c9; 
+    
   }
   .back-btn{
     text-decoration: none; /* Remove underline */
@@ -20,6 +26,7 @@
   
   .account_setup.active {
     background-color: #006E7A; /* Background for active link */
+    margin-bottom: 0px;
   }
   .account-header-title{
     color: black;
@@ -29,6 +36,7 @@
   .rectangle{
     background-color: #006E7A;
     height: 8px;
+    
   }
   .account-bg{
     background-color: #f2f2f2;
@@ -40,6 +48,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    
 }
 .setups_acc_head{
   font-weight:500;
@@ -51,5 +60,14 @@
 .clickable-cell {
   cursor: pointer;
   color: #006E7A;
-  
+  border-right: 1px solid #807676;
+}
+#it-cd{
+  font-size: 13px;
+  font-weight: 300;
+  margin-right: 8px;
+  color: #333333;
+}
+.item-code{
+  margin-right: 8px;
 }

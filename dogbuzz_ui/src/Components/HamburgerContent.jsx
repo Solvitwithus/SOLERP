@@ -101,8 +101,8 @@ const Logout = () => {
 
   sessionStorage.clear();
   localStorage.clear();
-  Cookies.remove("username");
-  Cookies.remove("sessionToken");
+  Cookies.delete("username");
+  Cookies.delete("sessionToken");
 
   navigate("/"); // Redirect to the login page
 };

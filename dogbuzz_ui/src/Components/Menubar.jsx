@@ -55,7 +55,14 @@ const toggleMenu = (e) => {
   return (
     <>    <div className="menubar">
       <div className="menu-section">
-        <img src={hamburgerSrc} alt="Menu" className="ham_menu" onClick={toggleMenu} aria-expanded={isMenuVisible} /> {/* Click to toggle menu */}
+      <button 
+  className="ham_menu" 
+  onClick={toggleMenu} 
+  aria-expanded={isMenuVisible} 
+  aria-label="Toggle menu"
+>
+  <img src={hamburgerSrc} alt="Menu" className="ham_menu" />
+</button>
         <h2 className="title">{title}</h2>
         <div className="time_and_url">
           <h6 className="time-display">{formattedDate}</h6>

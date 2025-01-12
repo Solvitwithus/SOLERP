@@ -25,6 +25,9 @@ import SalesAccount from "./Finance/SalesAccount";
 import PurchaseAccount from "./Finance/PurchaseAccount";
 import OtherAccounts from "./Finance/OtherAccounts";
 import Currency from "./Finance/Currency";
+import AssetInventoryReport from "./AssetModule/AssetInventoryReport";
+import Itemsetup from "./AssetModule/Itemsetup";
+import ItemReport from "./AssetModule/ItemReport";
 
 
 
@@ -266,7 +269,40 @@ function App() {
                 <UnitofMeasurement/> 
               </ProtectedRoute>
             }
+          /> 
+
+
+<Route
+            exact
+            path="/assetmanagement/itemsetup"
+            element={
+              <ProtectedRoute>
+                <Itemsetup/> 
+              </ProtectedRoute>
+            }
+          />
+
+
+          
+         <Route
+            exact
+            path="/assetmanagement/assetsreport"
+            element={
+              <ProtectedRoute>
+                <AssetInventoryReport/> 
+              </ProtectedRoute>
+            }
           />  
+
+<Route
+            exact
+            path="/assetmanagement/itemsreport"
+            element={
+              <ProtectedRoute>
+                <ItemReport/> 
+              </ProtectedRoute>
+            }
+          /> 
         </Routes>
 
         

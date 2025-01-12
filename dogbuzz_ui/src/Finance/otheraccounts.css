@@ -1,11 +1,16 @@
 #miscellaneous-row{
-    background-color:#DEE7EC;
-    position: absolute;
-    top:18%;
-    border:1px solid black;
-    padding:10px;
-    border-radius: 5px;
-    font-size: 12px;
+
+    
+        background-color: #DEE7EC;
+        position: absolute;
+        top: 18%;
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Adjust for element width */
+        border: 1px solid black;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 12px;
+    
 
 }
 .order-title{

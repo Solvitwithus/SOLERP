@@ -1,10 +1,10 @@
-import React, { useState,useEffect,useRef} from 'react';
+import React, { useState,useEffect,useRef,useCallback} from 'react';
 import AccountsHeader from './AccountsHeader';
 import Delete from "../Assets/DeleteIcon.svg"
 import Edit from "../Assets/EditIcon.svg"
 import "./otheraccounts.css"
 const OtherAccounts = () => {
-
+    const BASE_URL = process.env.REACT_APP_API_URL 
     const initialState = {
         accountName: "",
         accountDescription: "",
@@ -45,8 +45,8 @@ const OtherAccounts = () => {
             const isEditing = Boolean(data.id);
             const method = isEditing ? "PUT" : "POST";
             const url = isEditing 
-                ? `http://localhost:5000/OtherAccountsEdit/${data.id}`
-                : "http://localhost:5000/OtherAccountsAdd";
+                ? `${BASE_URL}/OtherAccountsEdit/${data.id}`
+                : `${BASE_URL}/OtherAccountsAdd`;
     
             // Make the API call
             const response = await fetch(url, {
@@ -69,16 +69,22 @@ const OtherAccounts = () => {
             setError("An error occurred. Please check your internet connection or try again later.");
         }
     };
-    
-setTimeout(()=>{
-setError('')
-setSuccess('')
-},2000)
+ 
+    useEffect(() => {
+        if (error || success) {
+            const timer = setTimeout(() => {
+                setError('');
+                setSuccess('');
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [error, success]);
 
 
-const FetchOtherAccounts =async()=>{
+
+const FetchOtherAccounts = useCallback(async()=>{
     try{
- const response = await fetch("http://localhost:5000/FetchOtherAccounts",{
+ const response = await fetch(`${BASE_URL}/FetchOtherAccounts`,{
 
     method:"GET",
     headers: { "Content-Type": "application/json" },
@@ -100,24 +106,25 @@ const FetchOtherAccounts =async()=>{
 catch{
     setError("Error fetching data check your connection")
 }
-}
+},[BASE_URL])
 useEffect(()=>{
 FetchOtherAccounts()
-fetchCurrency()
-const handleClickOutside = (e) =>{
-    if (modal.current &&!modal.current.contains(e.target)) {
-        
-        setRowprintpopup(false); 
-        setSelectedAccount(null);
+},[FetchOtherAccounts])
+
+useEffect(()=>{
+    const handleClickOutside = (e) =>{
+        if (modal.current &&!modal.current.contains(e.target)) {
+            
+            setRowprintpopup(false); 
+            setSelectedAccount(null);
+        }
     }
-}
-
-document.addEventListener('mousedown', handleClickOutside)
-return ()=>{
-    document.removeEventListener('mousedown', handleClickOutside)
-}
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return ()=>{
+        document.removeEventListener('mousedown', handleClickOutside)
+    }
 },[])
-
 
 
 const handleSmartBg = (index) => {
@@ -131,9 +138,9 @@ const handleSmartBg = (index) => {
 };
 
     const [currencies, setCurrencies] = useState([]);
-    const fetchCurrency = async () => {
+    const fetchCurrency = useCallback(async () => {
         try {
-          const response = await fetch("http://localhost:5000/fetch_currency", {
+          const response = await fetch(`${BASE_URL}/fetch_currency`, {
             method: "GET",
             headers: { "Content-Type": "application/json" }
           });
@@ -150,7 +157,11 @@ const handleSmartBg = (index) => {
         } catch (err) {
           setError("Error fetching currency, check your internet connection!");
         }
-      };
+      },[BASE_URL]);
+
+      useEffect(()=>{
+        fetchCurrency()
+      },[fetchCurrency])
 
 const handleDelete = async (id) => {
     if (!id) {
@@ -162,7 +173,7 @@ const handleDelete = async (id) => {
     if (!confirmDelete) return;
 
     try {
-        const response = await fetch(`http://localhost:5000/DeleteOtherAccounts/${id}`, {
+        const response = await fetch(`${BASE_URL}/DeleteOtherAccounts/${id}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
         });
@@ -209,14 +220,12 @@ if(editable){
           };
 
           const handlePrint = () => {
-            const printContent = document.getElementById('miscellaneous-row').innerHTML;
-            const originalContent = document.body.innerHTML;
-        
-            document.body.innerHTML = printContent;
-            window.print();
-            document.body.innerHTML = originalContent;
-        
-            window.location.reload();
+            const printableRow = document.getElementById('miscellaneous-row').innerHTML
+            const originalbody = document.body.innerHTML
+            document.body.innerHTML = printableRow
+            window.print()
+            document.body.innerHTML = originalbody
+            window.location.reload()
         };
 
 
@@ -307,8 +316,8 @@ if(editable){
                         </tbody>
                 </table>
 
-                {selectedAccount && (<div id="miscellaneous-row">
-                    <table className="modal-table" ref={modal}>
+                {selectedAccount && (<div id="miscellaneous-row" ref={modal}>
+                    <table className="modal-table" >
                         <p className='order-title'>Bank Order #{selectedAccount.id}</p>
                                 <tbody>
                                     <tr>

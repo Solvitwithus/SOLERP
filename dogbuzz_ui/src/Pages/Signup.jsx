@@ -56,6 +56,9 @@ const Signup = () => {
 
   return (
     <div className="signup-container">
+      <Helmet>
+        <title>SolvItERP Sign Up</title>
+      </Helmet>
       <title>SolvItERP Sign Up</title>
       <div className="signup-card">
         <h1 className="signup-title">Welcome to SOLERP!</h1>

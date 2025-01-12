@@ -9,7 +9,7 @@ const CategorySetupform = () => {
   const [error, setError] = useState('');
   const [unit,setunit] = useState([]);
   const [purchase, setPurchase] = useState([]);
- const [category, setCategory] = useState({
+const initialState = {
   categoryName: "",
   categoryDescription: "",
   categoryTaxType: "",
@@ -17,11 +17,12 @@ const CategorySetupform = () => {
   ExcludefromSale:false,
   ExcludefromPurchase:false,
   salesAccount:"",
-  assetAccount:"",
+  purchaseAccount:"",
   workArea:""
-
- });
+}
+ const [category, setCategory] = useState(initialState);
 const [salesaccounts, setSalesaccounts] = useState([]);
+const [success, setSuccess] = useState("");
 const fetchSalesAccounts = async()=>{
   try {
       const response = await fetch("http://localhost:5000/GetAllSalesAccounts",{
@@ -114,6 +115,12 @@ const fetchSalesAccounts = async()=>{
   fetchPurchaseAccounts();
 
   fetchSalesAccounts()
+
+  const storedData = localStorage.getItem("Edit-data");
+  if (storedData) {
+    setCategory(JSON.parse(storedData)); // Set the data into the state
+  }
+  localStorage.removeItem("Edit-data");
   }, []);
 
 const handleCategoryChange =(e)=>{
@@ -128,12 +135,39 @@ const handleCategoryChange =(e)=>{
 }
 
 
-  const handleCategorySubmission = async (event) => {
-    event.preventDefault();
-    console.log(category);
-    
+const handleCategorySubmission = async (event) => {
+  event.preventDefault();
+
+  try {
+    const url = category.id? `http://localhost:5000/UpdateCategory/${category.id}`: "http://localhost:5000/PostCategory"
+    const method = category.id? "PUT" : "POST";
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(category),
+    });
+
+    const category_res = await response.json(); // Await the response.json()
+
+    if (response.ok) {
+      setSuccess(category_res.message || "Successfully added category!");
+    } else {
+      setError(category_res.error || "Failed to add category!");
+    }
+  } catch (error) {
+    setError("An error occurred while adding category, Check your internet connection!");
   }
 
+  // Reset the form to initial state
+  setCategory(initialState);
+};
+
+setTimeout(()=>{
+setError('')
+setSuccess('')
+},3000)
   return (
     <div className="categoryformsetupcontainer">
       <Helmet>
@@ -141,9 +175,11 @@ const handleCategoryChange =(e)=>{
           Category Setup Form
         </title>
       </Helmet>
-      <h4 className="category-form-header">Category Setup</h4>
-      {loading && <p>Loading tax types...</p>}
+      <h4 className="category-form-header">Item Category Setup</h4>
+      
+      {loading && <p>Loading form values...</p>}
       {error && <p className="error-message">{error}</p>}
+      {success && <div className="success-message">{success}</div>}
       <form className="category-form" onSubmit={handleCategorySubmission}>
         <label htmlFor="categoryName" className="form-label">Category Name:</label>
         <input type="text" id="categoryName" value={category.categoryName} name="categoryName" className="form-input" onChange={handleCategoryChange} required />
@@ -155,7 +191,7 @@ const handleCategoryChange =(e)=>{
         <select id="categoryTaxType" onChange={handleCategoryChange} name="categoryTaxType" className="form-select" required>
           <option value={category.categoryTaxType}>Select Tax Type</option>
           {taxTypes.map(item => (
-            <option key={item._id} value={item._id}>{item.taxType}</option>
+            <option key={item._id} value={item.taxType}>{item.taxType}</option>
           ))}
         </select>
 
@@ -178,21 +214,21 @@ const handleCategoryChange =(e)=>{
           <label htmlFor="excludeFromSale" className="form-checkbox-label">Exclude from Purchase</label>
         </div>
 
-        <label htmlFor="salesAccount" className="form-label">Miscell Account:</label>
+        <label htmlFor="salesAccount" className="form-label">Sales Account:</label>
         <select id="salesAccount" onChange={handleCategoryChange} value={category.salesAccount} name="salesAccount" className="form-select" >
           <option value="">Select Sales Account</option>
           {salesaccounts.map((val,idx)=>(
-            <option key={idx} value={val.id}>{val.accountName}</option>
+            <option key={idx} value={val.accountName}>{val.accountName}</option>
           ))}
         </select>
 
 
 
         <label htmlFor="assetAccount" className="form-label">Purchase Account:</label>
-        <select id="assetAccount" onChange={handleCategoryChange} value={category.assetAccount} name="assetAccount" className="form-select" >
+        <select id="assetAccount" onChange={handleCategoryChange} value={category.assetAccount} name="purchaseAccount" className="form-select" >
           <option value="">Select Purchase Account</option>
         {purchase.map((val,idx)=>(
-          <option key={idx} value={val.id}>{val.accountName}</option>
+          <option key={idx} value={val.accountName}>{val.accountName}</option>
         ))}
         </select>
 
@@ -207,8 +243,8 @@ const handleCategoryChange =(e)=>{
         </select>
 
         <div className="form-buttons">
-          <button type="submit" className="form-submit-btn">Submit</button>
-          <button type="button" className="form-back-btn" onClick={() => navigate(-1)}>Back</button>
+          <button type="submit" className="print-button">{category.id? "Update" : "Submit"}</button>
+          <button type="button" className="pagenavbutton" onClick={() => navigate(-1)}>Back</button>
         </div>
       </form>
     </div>

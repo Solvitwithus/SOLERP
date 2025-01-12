@@ -1,11 +1,13 @@
-import React, { useState,useEffect,useRef} from 'react';
+import React, { useState,useEffect,useRef,useCallback} from 'react';
 import AccountsHeader from './AccountsHeader';
 import Delete from "../Assets/DeleteIcon.svg"
 import Edit from "../Assets/EditIcon.svg"
 
 import "./Purchaseaccounts.css"
 const PurchaseAccount = () => {
-    const [data, setData] = useState({
+    const BASE_URL = process.env.REACT_APP_API_URL 
+    
+   const initialState = {
         accountName: "",
         accountDescription: "",
         bankName: "",
@@ -19,7 +21,8 @@ const PurchaseAccount = () => {
         accountManager: "",
         status: "active",
         reimbursementEligibility: false,
-    });
+    }
+    const [data, setData] = useState(initialState);
 const modal = useRef()
 const [success, setSuccess] = useState("");
 const [error, setError] = useState("");
@@ -28,9 +31,9 @@ const [rowdata, setRowdata] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 const [purchaseAccounts, setPurchaseAccounts] = useState([]);
-const fetchPurchaseAccounts = async () => {
+const fetchPurchaseAccounts = useCallback(async () => {
     try {
-        const response = await fetch("http://localhost:5000/FetchPurchaseAccount", {
+        const response = await fetch(`${BASE_URL}/FetchPurchaseAccount`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -42,19 +45,22 @@ const fetchPurchaseAccounts = async () => {
         const data = await response.json();
       
         
-        setPurchaseAccounts(data); // Fallback to an empty array if no data
+        setPurchaseAccounts(data);
     
         
     } catch (error) {
         console.error("Failed to fetch purchase accounts:", error);
         alert("Could not fetch purchase accounts. Please check your server.");
     }
-};
+},[BASE_URL]);
+
+useEffect(()=>{
+    fetchPurchaseAccounts();
+},[fetchPurchaseAccounts])
 
 
     useEffect(() => {
-        fetchPurchaseAccounts();
-        fetchCurrency()
+        
 
         const handleClickOutside = (e) =>{
             if(modal.current&&!modal.current.contains(e.target)){
@@ -70,11 +76,13 @@ const fetchPurchaseAccounts = async () => {
     }, []);
 
   useEffect(() => {
+    if(success || error){
     const timer = setTimeout(() => {
       setError('');
       setSuccess('');
     }, 4000);
     return () => clearTimeout(timer);
+}
   }, [error, success]);
 
     const handleChange = (e) => {
@@ -90,7 +98,7 @@ const fetchPurchaseAccounts = async () => {
 const handleAdd = async (e) => {
     e.preventDefault();
     const method = data.id ? 'PUT' : 'POST';
-    const url = data.id ? `http://localhost:5000/UpdatePurchaseAccount/${data.id}` : 'http://localhost:5000/AddPurchaseAccount';
+    const url = data.id ? `${BASE_URL}/UpdatePurchaseAccount/${data.id}` : `${BASE_URL}/AddPurchaseAccount`;
 
     try {
         const response = await fetch(url, {
@@ -107,23 +115,8 @@ const handleAdd = async (e) => {
             }
         } else {
             
-             // Refresh the accounts list
-            setData({
-                id: null,
-                accountName: "",
-                accountDescription: "",
-                bankName: "",
-                accountNumber: "",
-                bankAddress: "",
-                currency: "",
-                paymentTerms: "",
-                preferredVendors: "",
-                procurementLimits: "",
-                associatedBusinessUnit: "",
-                accountManager: "",
-                status: "active",
-                reimbursementEligibility: false,
-            }); // Clear form after submit
+            
+            setData(initialState); 
             fetchPurchaseAccounts();
         }
     } catch (error) {
@@ -134,8 +127,8 @@ const handleAdd = async (e) => {
 
 
     const handleDeleteClick = async(id)=>{
-        // Further processing can be done here, like sending data to an API
-        const response = await fetch(`http://localhost:5000/DeletePurchaseAccount/${id}`, {
+       
+        const response = await fetch(`${BASE_URL}/DeletePurchaseAccount/${id}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
         });
@@ -154,9 +147,9 @@ const handleAdd = async (e) => {
         }
     };
     const [currencies, setCurrencies] = useState([]);
-    const fetchCurrency = async () => {
+    const fetchCurrency = useCallback(async () => {
         try {
-          const response = await fetch("http://localhost:5000/fetch_currency", {
+          const response = await fetch(`${BASE_URL}/fetch_currency`, {
             method: "GET",
             headers: { "Content-Type": "application/json" }
           });
@@ -173,7 +166,10 @@ const handleAdd = async (e) => {
         } catch (err) {
           setError("Error fetching currency, check your internet connection!");
         }
-      };
+      },[BASE_URL]);
+      useEffect(() => {
+        fetchCurrency();
+    },[fetchCurrency])
       // Pagination Logic
       const indexOfLastRow = currentPage * rowsPerPage;
       const indexOfFirstRow = indexOfLastRow - rowsPerPage;

@@ -1,10 +1,11 @@
 
-import React, { useState,useEffect,useRef } from "react";
+import React, { useState,useEffect,useRef,useCallback } from "react";
 import AccountsHeader from "./AccountsHeader";
 import "./SalesAccount.css";
 import Delete from "../Assets/DeleteIcon.svg"
 import Edit from "../Assets/EditIcon.svg"
 const SalesAccount = () => {
+    const BASE_URL = process.env.REACT_APP_API_URL 
     const modal = useRef()
     const initialState = {
         accountName: "",
@@ -36,9 +37,9 @@ const SalesAccount = () => {
         setData({ ...data, [name]: type === "checkbox" ? checked : value });
     };
 
-    const fetchSalesAccounts = async()=>{
+    const fetchSalesAccounts = useCallback(async()=>{
         try {
-            const response = await fetch("http://localhost:5000/GetAllSalesAccounts",{
+            const response = await fetch(`${BASE_URL}/GetAllSalesAccounts`,{
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -53,12 +54,16 @@ const SalesAccount = () => {
         } catch (err) {
             console.error(err);
         }
-    }
+    },[BASE_URL])
 
+
+    useEffect(()=>{
+fetchSalesAccounts()
+    },[fetchSalesAccounts])
         const [currencies, setCurrencies] = useState([]);
-        const fetchCurrency = async () => {
+        const fetchCurrency = useCallback(async () => {
             try {
-              const response = await fetch("http://localhost:5000/fetch_currency", {
+              const response = await fetch(`${BASE_URL}/fetch_currency`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" }
               });
@@ -75,11 +80,14 @@ const SalesAccount = () => {
             } catch (err) {
               setError("Error fetching currency, check your internet connection!");
             }
-          };
+          },[BASE_URL]);
+          useEffect(()=>{
+            fetchCurrency()
+          },[fetchCurrency])
 
     useEffect(()=>{
-        fetchSalesAccounts();
-        fetchCurrency()
+        
+       
 
         const handleClickOutSide = (e) =>{
             if(modal.current && !modal.current.contains(e.target)){
@@ -143,7 +151,7 @@ const SalesAccount = () => {
     
         try {
             const method = data.id ? "PUT" : "POST";
-            const url = data.id ? `http://localhost:5000/EditSalesAccount/${data.id}` : "http://localhost:5000/AddSalesAccount"
+            const url = data.id ? `${BASE_URL}/EditSalesAccount/${data.id}` : `${BASE_URL}/AddSalesAccount`
     
             const response = await fetch(url, {
                 method: method,
@@ -166,12 +174,19 @@ const SalesAccount = () => {
             setLoading(false);
         }
     
-        setTimeout(() => {
-            setError("");
-            setSuccess("");
-        }, 2000);
+       
     };
     
+    useEffect(()=>{
+        if(success || error){
+            const time = setTimeout(()=>{
+                setError('')
+                setSuccess('')
+            },4000)
+            return ()=> clearTimeout(time)
+        }
+
+    },[success,error])
 
     // const handleDeleteClick = async(id)=>{
     //     console.log("Delete item with id: " + id);
@@ -191,7 +206,7 @@ const SalesAccount = () => {
 
     const handleDeleteClick = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/DeleteSalesAccount/${id}`, {
+            const response = await fetch(`${BASE_URL}/DeleteSalesAccount/${id}`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
             });

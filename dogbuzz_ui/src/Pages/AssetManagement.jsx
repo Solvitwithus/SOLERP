@@ -7,7 +7,7 @@ import {Helmet} from "react-helmet"
 const AssetManagement = () => {
  const LeftAssetsetup =[
   {path:"/assetmanagement/createcategory",name:"Asset Category Creation"},
-  {path:"/Breeding/CreateBreed",name:"Asset Type"},
+  {path:"/assetmanagement/itemsetup",name:"Asset Type"},
   {path:"/Breeding/CreateBreed",name:"Asset Depreciation configuration"},
 
  
@@ -20,7 +20,7 @@ const AssetManagement = () => {
  ];
 
  const RightAssetReport =[
-  {path:"/Breeding/CreateBreed",name:"Asset Inventory Report"},
+  {path:"/assetmanagement/assetsreport",name:"Asset Inventory Report"},
   {path:"/Breeding/CreateBreed",name:"Depreciation Report"},
   {path:"/Breeding/CreateBreed",name:"Maintainance History Report"},
   {path:"/Breeding/CreateBreed",name:"Incident Report"},
@@ -30,7 +30,8 @@ const AssetManagement = () => {
 
  const LeftAssetReport =[
   {path:"/Breeding/CreateBreed",name:"Asset Category Report"},
-  {path:"/Breeding/CreateBreed",name:"Item Report"}
+  {path:"/assetmanagement/itemsreport",name:"Item Report"},
+  {path:"/Breeding/CreateBreed",name:"Category-Item Report"}
  
  ];
 

@@ -13,6 +13,14 @@ const AccountsHeader = () => {
       <span className='setups_acc_head'>Account Setups and Report section</span>
       <hr/>
       <div className="account-header-section">
+        
+      <NavLink 
+          to="/finance" 
+          className="back-btn" 
+          activeClassName="active"
+        >
+          <h6 className="account-header-title">Finance Hub</h6>
+        </NavLink>
         <NavLink 
           to="/finance/purchaseaccountsetup" 
           className="account_setup" 
@@ -38,13 +46,6 @@ const AccountsHeader = () => {
 
 
 
-        <NavLink 
-          to="/finance" 
-          className="back-btn" 
-          activeClassName="active"
-        >
-          <h6 className="account-header-title">Finance Hub</h6>
-        </NavLink>
       </div>
       <div className='rectangle'></div>
     </div>

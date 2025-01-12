@@ -6,6 +6,7 @@ body {
  padding: 0;
  overflow-y: auto;
  overflow-x: auto;
+ background-color: #F2F2F2;
 }
 
 code {
