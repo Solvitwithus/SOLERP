@@ -216,3 +216,13 @@
   .ham_menu{
     border: none;
   }
+
+  .userandstatus{
+    display: flex;
+    flex-direction: column;
+  }
+
+  #status{
+    color: #006E7A;
+    font-size: 12px;
+  }

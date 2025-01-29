@@ -19,7 +19,20 @@ const Menubar = ({ hamburgerSrc, title, profileSrc, username }) => {
     };
 }, []);
 
+const [isOnline, setIsOnline] = useState(navigator.onLine);
 
+useEffect(() => {
+  const handleOnline = () => setIsOnline(true);
+  const handleOffline = () => setIsOnline(false);
+
+  window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
+
+  return () => {
+    window.removeEventListener("online", handleOnline);
+    window.removeEventListener("offline", handleOffline);
+  };
+}, []);
 const mainActivity = (e) => {
   // Close menu if the click is outside of the menu and the hamburger icon
   if (
@@ -71,12 +84,16 @@ const toggleMenu = (e) => {
 
        
       </div>
-
+      
       <div className="profile-section">
         <img src={profileSrc} alt="profile" />
+        <div className="userandstatus">
         <h6>
           Welcome, <span className="username">{username}</span>
         </h6>
+        
+      <h6><span id="status">Status:</span> {isOnline ? "🟢 Online" : "🔴 Offline"}</h6>
+      </div>
       </div>
     </div>
     {isMenuVisible && (
